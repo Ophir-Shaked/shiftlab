@@ -1,0 +1,29 @@
+# ============================================================
+# Runtime dependencies for ShiftLab
+# These are required to RUN experiments.
+# ============================================================
+
+# OpenML: used to download real-world tabular datasets
+openml>=0.14.2
+
+# Core ML / data stack
+scikit-learn>=1.2.0   # models, preprocessing, metrics
+pandas>=2.0.0         # tabular data handling
+numpy>=1.24.0         # numerical operations
+scipy>=1.10.0         # statistics, copula utilities
+matplotlib>=3.7.0     # plotting and saved figures
+
+# Configuration loading:
+# ShiftLab uses YAML configs by default (configs/*.yaml),
+# so PyYAML is a REQUIRED runtime dependency.
+pyyaml>=6.0
+
+# ------------------------------------------------------------
+# Optional dependency:
+# XGBoost is used only if requested in the config.
+# The code checks availability and disables it gracefully
+# if not installed.
+#
+# Uncomment if you want XGBoost support:
+# xgboost>=2.0.0
+# ------------------------------------------------------------

@@ -1,0 +1,48 @@
+[project]
+
+
+name = "shiftlab"
+
+
+
+# Minimum Python version required
+requires-python = ">=3.10"
+
+# Runtime dependencies.
+# Keeping this explicit makes:
+# - pip install -e .
+# - reproducibility
+# - CI / reviewers
+# much cleaner.
+dependencies = [
+  "numpy>=1.24.0",
+  "pandas>=2.0.0",
+  "scikit-learn>=1.2.0",
+  "scipy>=1.10.0",
+  "matplotlib>=3.7.0",
+  "openml>=0.14.2",
+]
+
+# ------------------------------------------------------------
+# Setuptools configuration
+# ------------------------------------------------------------
+[tool.setuptools]
+
+# Tell setuptools that packages live under src/
+# This enables the canonical:
+#   src/shiftlab/
+# layout.
+package-dir = {"" = "src"}
+
+# Automatically discover packages inside src/
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[build-system]
+
+# Minimum setuptools version needed for pyproject-based builds
+requires = ["setuptools>=61.0"]
+
+# Backend used to build the package
+build-backend = "setuptools.build_meta"

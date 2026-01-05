@@ -1,0 +1,121 @@
+# Root output directory where all experiment artifacts are saved:
+# - raw results CSV
+# - aggregated results CSV
+# - selected plots
+# - confusion matrices
+out_dir: results
+
+# Global random seed used to initialize all randomness
+# (NumPy, Python random, model initialization, etc.)
+# Ensures reproducibility across runs
+global_seed: 1337
+
+# List of random seeds used for repeated experiments
+# Each seed produces an independent run; results are later averaged
+seeds: [1, 2]
+
+# Ratios of synthetic data mixed into the training set
+# 0.0  -> 100% real data
+# 1.0  -> 100% synthetic data
+# Intermediate values create mixed datasets
+ratios: [0.0, 0.25, 0.5, 0.75, 1.0]
+
+# Maximum number of rows to load from each dataset
+# Used to cap dataset size for faster experiments / memory control
+n_max_rows: 20000
+
+
+# Fraction of the full dataset used as the test set (IID split)
+# Applies when no distribution shift is enforced
+test_size_iid: 0.2
+
+# Fraction of the training data reserved for validation
+# Validation is used for threshold selection (e.g., best F1)
+val_size_in_train: 0.2
+
+# Quantile used to create distribution shift splits
+# Example: shift_q = 0.6 means:
+# - Train: samples ≤ 60th percentile
+# - Test:  samples > 60th percentile
+shift_q: 0.6
+
+
+# Size of the synthetic data pool relative to real training data
+# 1.5 means: generate 1.5 × (number of real training samples)
+syn_pool_multiplier: 1.5
+
+# Standard deviation of Gaussian noise added in bootstrap-based generator
+# Controls how strong the numeric perturbation is
+boot_noise_std: 0.03
+
+
+# Number of quantile bins used for worst-group accuracy computation
+# Higher values -> finer group granularity
+wga_bins: 10
+
+# Minimum number of samples required for a group
+# Groups smaller than this are ignored in worst-group accuracy
+wga_min_group: 25
+
+
+# Tradeoff parameter for model selection
+# Final score = ROC-AUC − alpha x ECE
+# alpha = 0.0 -> select purely by ROC-AUC
+select_score_alpha: 0.0
+
+
+# Whether to show plots interactively using matplotlib windows
+# Set to true for local debugging; false for batch runs
+show_plots: false
+
+# If true, plot only a small set of representative configurations
+# (best IID + worst shift per dataset)
+plot_representative_only: true
+
+# Whether to save confusion matrices as PNG images
+save_cm_png: true
+
+
+# List of models evaluated in the experiment
+# - logreg : Logistic Regression
+# - hgb    : Histogram Gradient Boosting
+# - xgb    : XGBoost (if installed)
+models: ["logreg", "hgb", "xgb"]
+
+# Synthetic data generators used to augment training data
+# - bootstrap_noise_labeled          : resampling + numeric noise
+# - gaussian_copula_conditional      : class-conditional copula model
+generators: ["bootstrap_noise_labeled", "gaussian_copula_conditional"]
+
+
+# Dataset definitions
+datasets:
+
+  # Adult income dataset (UCI / OpenML)
+  - name: adult
+
+    # OpenML loading instructions
+    openml:
+      by: name            # Load dataset by name
+      value: adult        # Dataset name in OpenML
+
+    # Candidate feature names used to induce distribution shift
+    # The code will try these names in order and use the first match
+    shift_candidates:
+      - ["age"]                           # First shift dimension
+      - ["hours_per_week", "hoursperweek", "hours-per-week"]  # Second shift dimension
+
+
+  # Default Credit dataset
+  - name: default_credit
+
+    # OpenML loading instructions
+    openml:
+      by: id              # Load dataset by numeric ID
+      value: 45036        # OpenML dataset ID
+
+    # Candidate feature names for shift construction
+    # Multiple aliases are provided for robustness across versions
+    shift_candidates:
+      - ["AGE", "age", "X1", "x1"]            # Age-related column
+      - ["LIMIT_BAL", "limit_bal", "X5", "x5"]  # Credit limit column
