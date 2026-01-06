@@ -1,39 +1,58 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+# Enables postponed evaluation of type annotations.
+# This allows using forward references and modern type hints
+# without runtime import issues (and keeps typing consistent
+# across Python versions).
+
 """
 Main entry point for the ShiftLab experiment framework.
 
 This file exists mainly for convenience:
-- Allows running the project easily from PyCharm (Run )
+- Allows running the project easily from PyCharm (Run button)
 - Provides a simple CLI wrapper around shiftlab.runner.run_experiment
 
 Recommended production usage is:
     python -m shiftlab.runner
-But this file is perfectly valid and safe to keep.
 """
 
 import argparse
+# Used to define and parse command-line arguments such as:
+#   --config configs/default.yaml
+# This avoids hard-coding experiment parameters in the source code.
+
+import os
+# Provides operating-system–independent utilities.
+# Here it is used to:
+# - Locate the directory of this file
+# - Build paths in a portable way (Windows / Linux / macOS)
+
 import sys
-from pathlib import Path
+# Gives access to the Python runtime environment.
+# Here it is used to modify sys.path so that the "src/" directory
+# is importable when running this file directly (python main.py).
 
 
 # ------------------------------------------------------------
 # PyCharm / direct-run compatibility
 # ------------------------------------------------------------
-# When running this file directly (python main.py),
-# Python does NOT automatically add "src/" to sys.path.
+# When running this file directly:
+#     python main.py
+# Python does NOT automatically include "src/" in its import path.
 #
-# This block makes sure that:
-#   src/shiftlab/ is importable
-# without requiring PYTHONPATH hacks.
+# This block ensures that:
+#     src/shiftlab/
+# can be imported without setting PYTHONPATH manually.
 #
 # When running as a module (python -m shiftlab.runner),
-# this block is harmless.
+# this block has no negative effect.
 # ------------------------------------------------------------
 if __name__ == "__main__":
-    src_path = Path(__file__).parent / "src"
-    if src_path.exists():
-        sys.path.insert(0, str(src_path))
+    project_root = os.path.dirname(__file__)        # Directory containing main.py
+    src_path = os.path.join(project_root, "src")   # <project_root>/src
+
+    if os.path.isdir(src_path):
+        sys.path.insert(0, src_path)               # Prepend src/ to import search path
 
 
 # ------------------------------------------------------------
@@ -47,9 +66,10 @@ def main() -> None:
     """
     Parse command-line arguments and run the ShiftLab experiment.
 
-    This function:
-    1) Loads the experiment configuration (YAML / JSON)
-    2) Passes it to the main experiment runner
+    High-level flow:
+    1) Parse CLI arguments (e.g. --config)
+    2) Load experiment configuration (YAML / JSON)
+    3) Run the full experiment pipeline
     """
 
     parser = argparse.ArgumentParser(
@@ -60,7 +80,7 @@ def main() -> None:
         "--config",
         type=str,
         default="configs/default.yaml",
-        help="Path to YAML/JSON experiment config file",
+        help="Path to YAML or JSON experiment configuration file",
     )
 
     args = parser.parse_args()
